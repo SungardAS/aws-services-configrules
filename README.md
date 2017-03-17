@@ -17,7 +17,7 @@ const Credentials = {
   "SecretAccessKey": "",
   "SessionToken": ""
 }
-path: /awsconfigrules?region=<<region>>
+path: /configrules?region=<<region>>
 method : GET
 headers: {
   "Credentials": JSON.stringify(Credentials),
@@ -30,7 +30,7 @@ Credentials = {
   "SecretAccessKey": "",
   "SessionToken": ""
 }
-path: /awsconfigrules
+path: /configrules
 method : POST
 headers: {
   "Credentials": JSON.stringify(Credentials),
@@ -47,7 +47,7 @@ Credentials = {
   "SecretAccessKey": "",
   "SessionToken": ""
 }
-path: /awsconfigrules
+path: /configrules
 method : DELETE
 headers: {
   "Credentials": JSON.stringify(Credentials),
@@ -88,7 +88,7 @@ Input Parameter Values
 
 - GitHubSourceRepositoryOwner: `SungardAS`
 
-- ParameterOverrides: `{ "AWSConfigTopicArn": "<awsconfig_topic_arn>", "HealthLogGroupName": "/SungardAS/Alerts/AWSConfigRules", "SubscriptionFilterDestinationArn": "arn:aws:logs:<region>:<account>:destination:<destination_name>" }`
+- ParameterOverrides: `{ "AWSConfigTopicArn": "<awsconfig_topic_arn>", "AWSConfigRulesLogGroupName": "/SungardAS/Alerts/AWSConfigRules", "SubscriptionFilterDestinationArn": "arn:aws:logs:<region>:<account>:destination:<destination_name>" }`
 
 - ProjectImage: `aws/codebuild/nodejs:4.3.2`
 

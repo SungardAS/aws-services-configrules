@@ -22,6 +22,7 @@ exports.handler = function (event, context) {
   var sentBy = event.Records[0].Sns.TopicArn;
   var sentAt = event.Records[0].Sns.Timestamp;
   var awsid = message_json.awsAccountId;
+  var timestamp = message_json.StateChangeTime;
   var non_complaint_pattern = /\s{1,}NON_COMPLIANT/;
 
   if (non_complaint_pattern.test(subject)) {
