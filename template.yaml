@@ -1,0 +1,184 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: API Interfaces and corresponding Lambda Functions for awsconfig.
+
+Parameters:
+  AWSConfigTopicArn:
+    Type: String
+    Description: Arn of AWSConfig Topic
+  AWSConfigRuleLogGroupName:
+    Type: String
+    Default: "/SungardAS/Alerts/AWSConfigRule"
+    Description: AWSConfigRule Cloudwatch Log Group Name
+  SubscriptionFilterDestinationArn:
+    Type: String
+    Description: Subscription Filter Destination Arn
+
+Resources:
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      DefinitionUri: ./swagger.yaml
+      StageName: Prod
+      Variables:
+        LambdaFunctionName: !Ref LambdaFunction
+  LambdaFunctionIAMRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Sid: "AllowLambdaServiceToAssumeRole"
+                Effect: "Allow"
+                Action:
+                  - "sts:AssumeRole"
+                Principal:
+                  Service:
+                    - "lambda.amazonaws.com"
+          Policies:
+            -
+              PolicyName: "InlinePolicy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "config:*"
+                      - "iam:*"
+                      - "lambda:*"
+                      - "sns:Create*"
+                      - "sns:Publish*"
+                      - "sns:Get*"
+                      - "sns:List*"
+                      - "sns:Delete*"
+                      - "sns:Subscribe*"
+                      - "tag:Get*"
+                    Resource: "*"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "logs:CreateLogGroup"
+                      - "logs:CreateLogStream"
+                      - "logs:PutLogEvents"
+                    Resource: "arn:aws:logs:*:*:*"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:PutObject*"
+                    Resource: "arn:aws:s3:::*.awsconfig/AWSLogs/*/*"
+                    Condition:
+                      StringLike:
+                        s3:x-amz-acl: "bucket-owner-full-control"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:GetBucketAcl"
+                    Resource: "arn:aws:s3:::*.awsconfig"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:ListAllMyBuckets"
+                      - "s3:CreateBucket"
+                    Resource: "*"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "sns:AddPermission"
+                    Resource: "arn:aws:sns:*:*:awsconfig-topic"
+  LambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: SungardAS-AWSConfigRule-Proxy
+      Handler: index.handler
+      Runtime: nodejs4.3
+      CodeUri: ./src
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Timeout: 300
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGatewayApi
+            Path: /{proxy+}
+            Method: ANY
+  AlertLambdaFunctionIAMRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Sid: "AllowAlertLambdaServiceToAssumeRole"
+                Effect: "Allow"
+                Action:
+                  - "sts:AssumeRole"
+                Principal:
+                  Service:
+                    - "lambda.amazonaws.com"
+          Policies:
+            -
+              PolicyName: "InlinePolicy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "logs:CreateLogGroup"
+                      - "logs:CreateLogStream"
+                      - "logs:PutLogEvents"
+                    Resource: "arn:aws:logs:*:*:*"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "cloudwatchlogs:*"
+                    Resource: "*"
+  CloudWatchLogsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: SungardAS-AWSConfigRule-CloudwatchLogs
+      Handler: index_cloudwatchlogs.handler
+      Runtime: nodejs4.3
+      CodeUri: ./src
+      Role: !GetAtt AlertLambdaFunctionIAMRole.Arn
+      Timeout: 60
+      Environment:
+        Variables:
+          AWSCONFIGRULE_LOG_GROUP_NAME: !Ref AWSConfigRuleLogGroupName
+      Events:
+        AWSConfigTopic:
+          Type: SNS
+          Properties:
+            Topic: !Ref AWSConfigTopicArn
+  AWSConfigRuleLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Ref AWSConfigRuleLogGroupName
+  SubscriptionFilter:
+    Type: AWS::Logs::SubscriptionFilter
+    DependsOn: HealthLogGroup
+    Properties:
+      LogGroupName: !Ref AWSConfigRuleLogGroupName
+      FilterPattern: ""
+      DestinationArn: !Ref SubscriptionFilterDestinationArn
+
+Outputs:
+  APIURL:
+    Description: "URL of your API endpoint"
+    Value: !Join
+      - ''
+      - - https://
+        - !Ref ApiGatewayApi
+        - '.execute-api.'
+        - !Ref 'AWS::Region'
+        - '.amazonaws.com/Prod'
+  LambdaFunctionArn:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt LambdaFunction.Arn
+  CloudWatchLogsLambdaFunctionArn:
+    Description: "CloudWatchLogs Lambda Function ARN"
+    Value: !GetAtt CloudWatchLogsFunction.Arn
