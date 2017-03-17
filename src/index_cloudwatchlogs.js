@@ -2,7 +2,7 @@
 var uuid = require('node-uuid');
 var aws_cloudwatchlog = new (require('aws-services-lib/aws/cloudwatchlog.js'))();
 
-var logGroupName = process.env.AWSCONFIG_RULE_LOG_GROUP_NAME;
+var logGroupName = process.env.AWSCONFIGRULES_LOG_GROUP_NAME;
 
 const createResponse = (statusCode, body) => {
   return {

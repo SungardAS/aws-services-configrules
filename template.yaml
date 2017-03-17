@@ -6,10 +6,10 @@ Parameters:
   AWSConfigTopicArn:
     Type: String
     Description: Arn of AWSConfig Topic
-  AWSConfigRuleLogGroupName:
+  AWSConfigRulesLogGroupName:
     Type: String
-    Default: "/SungardAS/Alerts/AWSConfigRule"
-    Description: AWSConfigRule Cloudwatch Log Group Name
+    Default: "/SungardAS/Alerts/AWSConfigRules"
+    Description: AWSConfigRules Cloudwatch Log Group Name
   SubscriptionFilterDestinationArn:
     Type: String
     Description: Subscription Filter Destination Arn
@@ -91,7 +91,7 @@ Resources:
   LambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: SungardAS-AWSConfigRule-Proxy
+      FunctionName: SungardAS-ConfigRules
       Handler: index.handler
       Runtime: nodejs4.3
       CodeUri: ./src
@@ -140,7 +140,7 @@ Resources:
   CloudWatchLogsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: SungardAS-AWSConfigRule-CloudwatchLogs
+      FunctionName: SungardAS-ConfigRules-CloudwatchLogs
       Handler: index_cloudwatchlogs.handler
       Runtime: nodejs4.3
       CodeUri: ./src
@@ -148,21 +148,21 @@ Resources:
       Timeout: 60
       Environment:
         Variables:
-          AWSCONFIGRULE_LOG_GROUP_NAME: !Ref AWSConfigRuleLogGroupName
+          AWSCONFIGRULES_LOG_GROUP_NAME: !Ref AWSConfigRulesLogGroupName
       Events:
         AWSConfigTopic:
           Type: SNS
           Properties:
             Topic: !Ref AWSConfigTopicArn
-  AWSConfigRuleLogGroup:
+  AWSConfigRulesLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Ref AWSConfigRuleLogGroupName
+      LogGroupName: !Ref AWSConfigRulesLogGroupName
   SubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
     DependsOn: HealthLogGroup
     Properties:
-      LogGroupName: !Ref AWSConfigRuleLogGroupName
+      LogGroupName: !Ref AWSConfigRulesLogGroupName
       FilterPattern: ""
       DestinationArn: !Ref SubscriptionFilterDestinationArn
 

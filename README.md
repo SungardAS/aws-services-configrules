@@ -88,7 +88,7 @@ Input Parameter Values
 
 - GitHubSourceRepositoryOwner: `SungardAS`
 
-- ParameterOverrides: `{ "AWSConfigTopicArn": "<awsconfig_topic_arn>" }`
+- ParameterOverrides: `{ "AWSConfigTopicArn": "<awsconfig_topic_arn>", "HealthLogGroupName": "/SungardAS/Alerts/AWSConfigRules", "SubscriptionFilterDestinationArn": "arn:aws:logs:<region>:<account>:destination:<destination_name>" }`
 
 - ProjectImage: `aws/codebuild/nodejs:4.3.2`
 
