@@ -160,7 +160,7 @@ Resources:
       LogGroupName: !Ref AWSConfigRulesLogGroupName
   SubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
-    DependsOn: HealthLogGroup
+    DependsOn: AWSConfigRulesLogGroup
     Properties:
       LogGroupName: !Ref AWSConfigRulesLogGroupName
       FilterPattern: ""
