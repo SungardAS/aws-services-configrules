@@ -1,8 +1,8 @@
 
 
-# Interfaces to Manage AWSConfig
+# Interfaces to Manage AWSConfig Rules
 
-API Gateway and Lambda Function to Manage the AWSConfigRules Service
+API Gateway and Lambda Function to Manage the AWSConfig Rules Service
 
 ![aws-services][aws-services-image]
 
@@ -84,11 +84,11 @@ Input Parameter Values
 
 - GitHubSourceRepositoryBranch: `master`
 
-- GitHubSourceRepositoryName: `aws-services-awsconfig-rules`
+- GitHubSourceRepositoryName: `aws-services-configrules`
 
 - GitHubSourceRepositoryOwner: `SungardAS`
 
-- ParameterOverrides: `{ "AWSConfigTopicArn": "awsconfig_topic_arn" }`
+- ParameterOverrides: `{ "AWSConfigTopicArn": "<awsconfig_topic_arn>" }`
 
 - ProjectImage: `aws/codebuild/nodejs:4.3.2`
 
