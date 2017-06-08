@@ -48,7 +48,7 @@ baseHandler.post = function(params, callback) {
         secretAccessKey: params.credentials.SecretAccessKey,
         sessionToken: params.credentials.SessionToken
       });
-      aws_lambda.enableRule(input);
+      aws_config.enableRule(input);
     }
   }
 
@@ -76,7 +76,7 @@ baseHandler.post = function(params, callback) {
     input.action = params.action;
     var flows = [
         {func:aws_lambda.addPermission, success:setCredentials, failure:failed, error:errored},
-        {func:setCredentials, success:aws_lambda.enableRule, failure:failed, error:errored},
+        {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
         {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored},
     ];
   }
