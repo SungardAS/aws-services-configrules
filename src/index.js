@@ -11,6 +11,8 @@ baseHandler.get = function(params, callback) {
 
   var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
   var aws  = require("aws-sdk");
+  console.log("get:------------------")
+  console.log(params)
 
   var input = {};
   if (params.region) input['region'] = params.region;
@@ -36,10 +38,13 @@ baseHandler.get = function(params, callback) {
 };
 
 baseHandler.post = function(params, callback) {
+  console.log("post:11------------------")
+  console.log(params)
 
   var aws_lambda = new (require('aws-services-lib/aws/lambda.js'))();
   var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
   var aws  = require("aws-sdk");
+  var input = {};
 
   function setCredentials(input) {
     if (params.credentials) {
@@ -51,6 +56,8 @@ baseHandler.post = function(params, callback) {
       aws_lambda.enableRule(input);
     }
   }
+  console.log("post:22------------------")
+  console.log(input)
 
   function succeeded(input) { callback(null, {result: true}); }
   function failed(input) { callback(null, {result: false}); }
