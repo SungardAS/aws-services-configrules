@@ -43,8 +43,6 @@ baseHandler.post = function(params, callback) {
 
   console.log('======PARAMS======');
   console.log(params);
-  console.log('======CALLBACK======');
-  console.log(callback);
 
   function setCredentials(input) {
     if (params.credentials) {
@@ -60,15 +58,16 @@ baseHandler.post = function(params, callback) {
   function succeeded(input) { callback(null, {result: true}); }
   function failed(input) { callback(null, {result: false}); }
   function errored(err) { callback(err, null); }
+  if(!params.rules.params)  params.rules.params="{}";
   
   var input = {
      region: params.region,
-     ruleName: params.ruleName,
-     owner: params.owner,
-     sourceID: params.sourceID,
-     resourceType: params.resourceType,
-     descript: params.description,
-     params: params.params,
+     ruleName: params.rules.ruleFunctionName,
+     owner: params.rules.owner,
+     sourceID: params.rules.sourceID,
+     resourceType: params.rules.resourceType,
+     descript: params.rules.ruleFunctionName,
+     params: params.rules.params,
   };
   console.log(input);
 
