@@ -41,6 +41,11 @@ baseHandler.post = function(params, callback) {
   var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
   var aws  = require("aws-sdk");
 
+  console.log('======PARAMS======');
+  console.log(params);
+  console.log('======CALLBACK======');
+  console.log(callback);
+
   function setCredentials(input) {
     if (params.credentials) {
       input['creds'] = new AWS.Credentials({
@@ -56,7 +61,6 @@ baseHandler.post = function(params, callback) {
   function failed(input) { callback(null, {result: false}); }
   function errored(err) { callback(err, null); }
   
-  console.log(params);
   var input = {
      region: params.region,
      ruleName: params.ruleName,
