@@ -55,7 +55,8 @@ baseHandler.post = function(params, callback) {
   function succeeded(input) { callback(null, {result: true}); }
   function failed(input) { callback(null, {result: false}); }
   function errored(err) { callback(err, null); }
-
+  
+  console.log(params);
   var input = {
      region: params.region,
      ruleName: params.ruleName,
