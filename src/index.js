@@ -86,6 +86,7 @@ baseHandler.post = function(params, callback) {
   }
   else{
       var flows = [
+          {func:aws_lambda.addPermission, success:setCredentials, failure:failed, error:errored},
           {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored},
       ];
   }
