@@ -87,8 +87,8 @@ baseHandler.post = function(params, callback) {
        input.statementId = params.statementId; //unique string, some uuid from api
        input.action = params.action;
        var flows = [
-          //{func:aws_lambda.addPermission, success:setCredentials, failure:failed, error:errored},
-          //{func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
+          {func:aws_lambda.addPermission, success:setCredentials, failure:failed, error:errored},
+          {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
           {func:aws_lambda.addPermission, success:aws_config.enableRule, failure:failed, error:errored},
           {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored}
        ];
