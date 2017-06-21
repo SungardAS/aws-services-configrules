@@ -51,7 +51,7 @@ baseHandler.post = function(params, callback) {
         secretAccessKey: params.credentials.SecretAccessKey,
         sessionToken: params.credentials.SessionToken
       });
-      //aws_config.enableRule(input);
+      aws_config.enableRule(input);
     }
   }
 
@@ -69,6 +69,13 @@ baseHandler.post = function(params, callback) {
      descript: params.rules.ruleFunctionName,
      params: params.rules.params,
   };
+  if (params.credentials) {
+    input['creds'] = new AWS.Credentials({
+      accessKeyId: params.credentials.AccessKeyId,
+      secretAccessKey: params.credentials.SecretAccessKey,
+      sessionToken: params.credentials.SessionToken
+    });
+  }
   console.log(input);
 
   if (params.owner == "CUSTOM_LAMBDA"){
@@ -86,7 +93,6 @@ baseHandler.post = function(params, callback) {
   }
   else{
       var flows = [
-          {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
           {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored},
       ];
   }
