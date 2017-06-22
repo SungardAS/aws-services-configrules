@@ -67,7 +67,7 @@ baseHandler.post = function(params, callback) {
         owner: rules[i].owner,
         sourceID: rules[i].sourceID,
         resourceType: rules[i].resourceType,
-        descript: rules[i].ruleFunctionName,
+        descript: rules[i].desc,
         params: rules[i].params,
      };
      if (params.credentials) {
@@ -77,19 +77,17 @@ baseHandler.post = function(params, callback) {
            sessionToken: params.credentials.SessionToken
         });
     }
-    console.log(input);
 
-    if (params.owner == "CUSTOM_LAMBDA"){
-       input.messageType = params.messageType;
-       input.functionName = params.functionName;
-       input.principal = params.principal;
+    if (rules[i].owner == "CUSTOM_LAMBDA"){
+       input.sourceID = "arn:aws:lambda:"+ params.region + ":" + rules[i].masterAccount + ":function:" + rules[i].sourceID;
+       input.messageType = rules[i].messageType;
+       input.functionName = rules[i].functionName;
+       input.principal = rules[i].principal;
        input.sourceAccount = params.customerAccount;
-       input.statementId = params.statementId; //unique string, some uuid from api
-       input.action = params.action;
+       input.statementId = rules[i].statementId; //unique string, some uuid from api
+       input.action = rules[i].action;
        var flows = [
-          {func:aws_lambda.addPermission, success:setCredentials, failure:failed, error:errored},
-          {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
-          {func:aws_lambda.addPermission, success:aws_config.enableRule, failure:failed, error:errored},
+          //{func:aws_lambda.addPermission, success:aws_config.enableRule, failure:failed, error:errored},
           {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored}
        ];
     }
@@ -99,6 +97,7 @@ baseHandler.post = function(params, callback) {
        ];
     }
 
+    console.log(input);
     aws_config.flows = flows;
     aws_lambda.flows = flows;
 
