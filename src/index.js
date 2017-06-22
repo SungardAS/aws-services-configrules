@@ -70,6 +70,7 @@ baseHandler.post = function(params, callback) {
         descript: rules[i].desc,
         params: rules[i].params,
      };
+     /*
      if (params.credentials) {
         input['creds'] = new AWS.Credentials({
            accessKeyId: params.credentials.AccessKeyId,
@@ -77,7 +78,7 @@ baseHandler.post = function(params, callback) {
            sessionToken: params.credentials.SessionToken
         });
     }
-
+    */
     if (rules[i].owner == "CUSTOM_LAMBDA"){
        input.sourceID = "arn:aws:lambda:"+ params.region + ":" + rules[i].masterAccount + ":function:" + rules[i].sourceID;
        input.messageType = rules[i].messageType;
@@ -88,13 +89,13 @@ baseHandler.post = function(params, callback) {
        input.action = rules[i].action;
        var flows = [
           {func:aws_lambda.addPermission, success:setCredentials, failure:failed, error:errored},
--          {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
-          //{func:aws_lambda.addPermission, success:aws_config.enableRule, failure:failed, error:errored},
+          {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
           {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored}
        ];
     }
     else{
        var flows = [
+          {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
           {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored},
        ];
     }
