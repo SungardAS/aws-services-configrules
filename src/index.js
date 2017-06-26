@@ -41,6 +41,9 @@ baseHandler.post = function(params, callback) {
   var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
   var aws  = require("aws-sdk");
 
+  console.log('======PARAMS======');
+  console.log(params);
+
   function setCredentials(input) {
     if (params.credentials) {
       input['creds'] = new AWS.Credentials({
@@ -48,48 +51,61 @@ baseHandler.post = function(params, callback) {
         secretAccessKey: params.credentials.SecretAccessKey,
         sessionToken: params.credentials.SessionToken
       });
-      aws_lambda.enableRule(input);
+      aws_config.enableRule(input);
     }
   }
 
   function succeeded(input) { callback(null, {result: true}); }
   function failed(input) { callback(null, {result: false}); }
   function errored(err) { callback(err, null); }
-
-  var input = {
-     region: params.region,
-     ruleName: params.ruleName,
-     owner: params.owner,
-     sourceID: params.sourceID,
-     resourceType: params.resourceType,
-     descript: params.description,
-     params: params.params,
-  };
-  console.log(input);
-
-  if (params.owner == "CUSTOM_LAMBDA"){
-    input.messageType = params.messageType;
-    input.functionName = params.functionName;
-    input.principal = params.principal;
-    input.sourceAccount = params.customerAccount;
-    input.statementId = params.statementId; //unique string, some uuid from api
-    input.action = params.action;
-    var flows = [
-        {func:aws_lambda.addPermission, success:setCredentials, failure:failed, error:errored},
-        {func:setCredentials, success:aws_lambda.enableRule, failure:failed, error:errored},
-        {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored},
-    ];
-  }
-  else{
-      var flows = [
+  var rules = params.rules; 
+  for(var i=0;i< rules.length;i++){
+     if(!rules[i].params)  rules[i].params="{}";
+     var input = {
+        region: params.region,
+        ruleName: rules[i].ruleFunctionName,
+        owner: rules[i].owner,
+        sourceID: rules[i].sourceID,
+        resourceType: rules[i].resourceType,
+        descript: rules[i].desc,
+        params: rules[i].params,
+     };
+     /*
+     if (params.credentials) {
+        input['creds'] = new AWS.Credentials({
+           accessKeyId: params.credentials.AccessKeyId,
+           secretAccessKey: params.credentials.SecretAccessKey,
+           sessionToken: params.credentials.SessionToken
+        });
+    }
+    */
+    if (rules[i].owner == "CUSTOM_LAMBDA"){
+       input.sourceID = "arn:aws:lambda:"+ params.region + ":" + rules[i].masterAccount + ":function:" + rules[i].sourceID;
+       input.messageType = rules[i].messageType;
+       input.functionName = rules[i].functionName;
+       input.principal = rules[i].principal;
+       input.sourceAccount = params.customerAccount;
+       input.statementId = rules[i].statementId; //unique string, some uuid from api
+       input.action = rules[i].action;
+       var flows = [
+          {func:aws_lambda.addPermission, success:setCredentials, failure:failed, error:errored},
+          {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
+          {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored}
+       ];
+    }
+    else{
+       var flows = [
+          {func:setCredentials, success:aws_config.enableRule, failure:failed, error:errored},
           {func:aws_config.enableRule, success:succeeded, failure:failed, error:errored},
-      ];
+       ];
+    }
+
+    console.log(input);
+    aws_config.flows = flows;
+    aws_lambda.flows = flows;
+
+    flows[0].func(input);
   }
-
-  aws_config.flows = flows;
-  aws_lambda.flows = flows;
-
-  flows[0].func(input);
 };
 
 baseHandler.delete = function(params, callback) {
