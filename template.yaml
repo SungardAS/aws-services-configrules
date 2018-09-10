@@ -93,7 +93,7 @@ Resources:
     Properties:
       FunctionName: SungardAS-ConfigRules
       Handler: index.handler
-      Runtime: nodejs4.3
+      Runtime: nodejs8.10
       CodeUri: ./src
       Role: !GetAtt LambdaFunctionIAMRole.Arn
       Timeout: 300
@@ -142,7 +142,7 @@ Resources:
     Properties:
       FunctionName: SungardAS-ConfigRules-CloudwatchLogs
       Handler: index_cloudwatchlogs.handler
-      Runtime: nodejs4.3
+      Runtime: nodejs8.10
       CodeUri: ./src
       Role: !GetAtt AlertLambdaFunctionIAMRole.Arn
       Timeout: 60
